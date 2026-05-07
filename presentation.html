@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 时代的个人效率革命 — 我用 Claude Code 做了什么</title>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700,800&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   CSS CUSTOM PROPERTIES (THEME)
+   Change these to change the whole look
+   =========================================== */
+:root {
+  --bg-primary: #0a0f1c;
+  --bg-secondary: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --accent-cyan: #00ffcc;
+  --accent-magenta: #ff00aa;
+  --accent-glow: rgba(0,255,204,0.15);
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.06);
+  --font-display: 'Clash Display', sans-serif;
+  --font-body: 'Satoshi', sans-serif;
+  --title-size: clamp(1.5rem, 5vw, 4rem);
+  --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+  --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+  --small-size: clamp(0.65rem, 1vw, 0.875rem);
+  --slide-padding: clamp(1rem, 4vw, 4rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+  --element-gap: clamp(0.25rem, 1vw, 1rem);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-normal: 0.6s;
+}
+
+/* ===========================================
+   BASE STYLES
+   =========================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column; position: relative;
+}
+
+.slide-content {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+
+.card, .container, .content-box {
+  max-width: min(90vw, 1000px); max-height: min(80vh, 700px);
+}
+
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+img, .image-container {
+  max-width: 100%; max-height: min(50vh, 400px); object-fit: contain;
+}
+
+@media (max-height: 700px) {
+  :root {
+    --slide-padding: clamp(0.75rem, 3vw, 2rem);
+    --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+    --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+    --h2-size: clamp(1rem, 3vw, 1.75rem);
+  }
+}
+@media (max-height: 600px) {
+  :root {
+    --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+    --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+    --title-size: clamp(1.1rem, 4vw, 2rem);
+    --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  }
+  .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-height: 500px) {
+  :root {
+    --slide-padding: clamp(0.4rem, 2vw, 1rem);
+    --title-size: clamp(1rem, 3.5vw, 1.5rem);
+    --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+    --body-size: clamp(0.65rem, 1vw, 0.85rem);
+  }
+}
+@media (max-width: 600px) {
+  :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+  .grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; transition-duration: 0.2s !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   NEON CYBER — THEME SPECIFIC STYLES
+   =========================================== */
+body {
+  background: #0a0f1c; font-family: var(--font-body); color: var(--text-primary);
+}
+
+/* Particle dots background */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(0,255,204,0.4), transparent),
+    radial-gradient(1px 1px at 30% 70%, rgba(0,255,204,0.3), transparent),
+    radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,0,170,0.3), transparent),
+    radial-gradient(1px 1px at 70% 40%, rgba(0,255,204,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 90% 80%, rgba(255,0,170,0.3), transparent),
+    radial-gradient(1px 1px at 20% 90%, rgba(0,255,204,0.2), transparent),
+    radial-gradient(1px 1px at 60% 60%, rgba(0,255,204,0.3), transparent),
+    radial-gradient(1.5px 1.5px at 80% 15%, rgba(255,0,170,0.25), transparent);
+}
+
+/* Grid overlay */
+.grid-overlay {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.slide { z-index: 1; }
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity var(--duration-normal) var(--ease-out-expo),
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.1s; }
+.reveal:nth-child(2) { transition-delay: 0.2s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+.reveal:nth-child(4) { transition-delay: 0.4s; }
+.reveal:nth-child(5) { transition-delay: 0.5s; }
+.reveal:nth-child(6) { transition-delay: 0.6s; }
+.reveal:nth-child(7) { transition-delay: 0.7s; }
+.reveal:nth-child(8) { transition-delay: 0.8s; }
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+.progress-bar {
+  position: fixed; top: 0; left: 0; width: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+  z-index: 9999; transition: width 0.3s ease;
+}
+
+/* ===========================================
+   SLIDE SPECIFIC STYLES
+   =========================================== */
+
+/* --- Title Slide --- */
+.title-slide { text-align: center; justify-content: center; }
+.title-slide .slide-content { align-items: center; }
+
+.cyber-tag {
+  display: inline-block; font-family: var(--font-body); font-size: clamp(0.6rem, 0.8vw, 0.85rem);
+  font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--accent-cyan); border: 1px solid rgba(0,255,204,0.25);
+  padding: 0.4em 1.2em; border-radius: 100px; margin-bottom: clamp(1.5rem, 2.5vw, 2.5rem);
+}
+
+.neon-title {
+  font-family: var(--font-display); font-size: var(--title-size); font-weight: 700;
+  line-height: 1.1; margin-bottom: clamp(1rem, 1.5vw, 1.8rem);
+  background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 60%, var(--accent-magenta) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.glow-line {
+  width: clamp(60px, 10vw, 120px); height: 3px;
+  margin: clamp(1.2rem, 2vw, 2rem) auto;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-magenta), transparent);
+  border-radius: 2px;
+}
+
+/* --- Content Slides --- */
+.slide-header {
+  display: flex; align-items: center; gap: clamp(0.6rem, 1.2vw, 1rem);
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+.slide-number {
+  font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.slide-title {
+  font-family: var(--font-display); font-size: var(--h2-size); font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Bullet list with neon dots */
+.neon-list {
+  list-style: none; display: flex; flex-direction: column;
+  gap: clamp(0.35rem, 1vh, 0.85rem);
+}
+.neon-list li {
+  font-size: var(--body-size); line-height: 1.5;
+  padding-left: clamp(1rem, 1.5vw, 1.5rem); position: relative;
+  color: rgba(255,255,255,0.85);
+}
+.neon-list li::before {
+  content: ''; position: absolute; left: 0; top: clamp(0.5em, 0.6vw, 0.55em);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent-cyan); box-shadow: 0 0 8px rgba(0,255,204,0.5);
+}
+
+/* Tag pills */
+.pill {
+  display: inline-block; font-size: clamp(0.55rem, 0.7vw, 0.75rem); font-weight: 500;
+  padding: 0.25em 0.8em; border-radius: 100px; letter-spacing: 0.03em;
+}
+.pill-cyan { background: rgba(0,255,204,0.15); color: var(--accent-cyan); border: 1px solid rgba(0,255,204,0.2); }
+.pill-magenta { background: rgba(255,0,170,0.15); color: var(--accent-magenta); border: 1px solid rgba(255,0,170,0.2); }
+.pill-white { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); }
+
+/* Project grid cards on slide 3 */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: clamp(0.5rem, 1vw, 1rem);
+}
+.project-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 12px; padding: clamp(0.8rem, 1.5vw, 1.2rem);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.project-card:hover {
+  border-color: rgba(0,255,204,0.3); transform: translateY(-2px);
+}
+.project-card .num {
+  font-family: var(--font-display); font-size: clamp(1.2rem, 2vw, 1.8rem);
+  font-weight: 700; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: clamp(0.2rem, 0.3vw, 0.4rem);
+}
+.project-card .name {
+  font-size: clamp(0.7rem, 1vw, 0.85rem); font-weight: 700; color: var(--text-primary);
+  margin-bottom: clamp(0.15rem, 0.2vw, 0.3rem);
+}
+.project-card .desc {
+  font-size: var(--small-size); color: var(--text-secondary); line-height: 1.4;
+}
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 2vw, 2rem);
+  flex: 1; max-height: 100%;
+}
+.two-col .col { overflow: hidden; }
+
+/* Tech stack tags */
+.tech-tags {
+  display: flex; flex-wrap: wrap; gap: clamp(0.3rem, 0.5vw, 0.5rem);
+  margin-top: clamp(0.5rem, 1vw, 1rem);
+}
+.tech-tag {
+  font-size: clamp(0.5rem, 0.65vw, 0.7rem); padding: 0.25em 0.7em;
+  border-radius: 100px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08); color: var(--text-secondary);
+}
+
+/* Pitfall cards */
+.pitfall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: clamp(0.4rem, 0.8vw, 0.8rem);
+}
+.pitfall-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 10px; padding: clamp(0.6rem, 1vw, 1rem);
+}
+.pitfall-card .pitfall-title {
+  font-size: clamp(0.6rem, 0.8vw, 0.8rem); font-weight: 700;
+  color: var(--accent-magenta); margin-bottom: clamp(0.2rem, 0.3vw, 0.4rem);
+}
+.pitfall-card .pitfall-desc {
+  font-size: var(--small-size); color: var(--text-secondary); line-height: 1.4;
+  margin-bottom: clamp(0.15rem, 0.2vw, 0.3rem);
+}
+.pitfall-card .pitfall-fix {
+  font-size: var(--small-size); color: var(--accent-cyan); line-height: 1.3;
+}
+.pitfall-card .pitfall-fix::before { content: '→ '; }
+
+/* Insight cards */
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.6rem, 1.5vw, 1.5rem);
+}
+.insight-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 14px; padding: clamp(1rem, 2vw, 1.8rem);
+  text-align: center;
+}
+.insight-card .icon {
+  font-size: clamp(1.5rem, 3vw, 2.5rem); margin-bottom: clamp(0.4rem, 0.6vw, 0.8rem);
+}
+.insight-card .text {
+  font-size: var(--body-size); color: var(--text-primary); line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Closing slide */
+.closing-slide { text-align: center; justify-content: center; }
+.closing-slide .slide-content { align-items: center; }
+
+/* ===========================================
+   INLINE EDITING STYLES
+   =========================================== */
+.edit-hotzone {
+  position: fixed; top: 0; left: 0; width: 80px; height: 80px;
+  z-index: 10000; cursor: pointer;
+}
+.edit-toggle {
+  position: fixed; top: 12px; left: 12px; z-index: 10001;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; border-radius: 8px; padding: 6px 12px;
+  font-size: 14px; cursor: pointer; backdrop-filter: blur(8px);
+  font-family: system-ui, sans-serif;
+}
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+  background: rgba(0,255,204,0.12); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,255,204,0.2);
+  padding: 8px 16px; text-align: center; font-size: 13px;
+  font-family: system-ui, sans-serif; color: var(--accent-cyan);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.edit-banner.active { opacity: 1; pointer-events: auto; }
+body.edit-active [contenteditable] {
+  outline: 1px dashed rgba(0,255,204,0.4); border-radius: 4px;
+  padding: 0 4px; transition: outline-color 0.2s;
+}
+body.edit-active [contenteditable]:focus {
+  outline: 1px dashed var(--accent-cyan); background: rgba(0,255,204,0.05);
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar"></div>
+
+<!-- Grid overlay -->
+<div class="grid-overlay"></div>
+
+<!-- Inline editing -->
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="编辑模式 (E)">✏️ 编辑</button>
+<div class="edit-banner" id="editBanner">📝 编辑模式 — 点击文字修改 · Ctrl+S 保存文件</div>
+
+<!-- ===========================================
+     SLIDE 1: TITLE
+     =========================================== -->
+<section class="slide title-slide">
+  <div class="slide-content">
+    <div class="cyber-tag reveal">✦ CLAUDE CODE 实战分享</div>
+    <div class="glow-line reveal"></div>
+    <h1 class="neon-title reveal">AI 时代的<br>个人效率革命</h1>
+    <p class="reveal" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem); color: var(--text-secondary); max-width: 600px; line-height: 1.6;">
+      一个"小白"用 Claude Code 的实战记录
+    </p>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 2: ABOUT ME
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">01</span>
+      <h2 class="slide-title">我是谁</h2>
+    </div>
+    <div class="two-col" style="flex:1; align-content:center;">
+      <div class="col reveal">
+        <ul class="neon-list">
+          <li>非专业开发者，纯"小白"</li>
+          <li>参加了 Claude Code 自动化冲刺营</li>
+          <li>用 AI 辅助完成了一系列真实项目</li>
+          <li>今天分享：用 Claude Code 做了哪些事、踩了哪些坑</li>
+        </ul>
+      </div>
+      <div class="col reveal" style="display:flex; flex-direction:column; justify-content:center; gap:clamp(0.5rem,1vw,1rem);">
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:clamp(0.8rem,1.5vw,1.5rem);text-align:center;">
+          <div style="font-size:clamp(2rem,4vw,3.5rem);margin-bottom:0.3rem;">🤖</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);line-height:1.5;">
+            <span style="color:var(--accent-cyan);font-weight:700;">一个人 + AI</span>
+            <br>≈ 一个小团队
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3: PROJECT OVERVIEW
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">02</span>
+      <h2 class="slide-title">项目一览</h2>
+    </div>
+    <div class="project-grid reveal">
+      <div class="project-card">
+        <div class="num">①</div>
+        <div class="name">浏览器自动化控制</div>
+        <div class="desc">TT Bridge + Chrome 扩展，AI 操控浏览器</div>
+      </div>
+      <div class="project-card">
+        <div class="num">②</div>
+        <div class="name">Claude 极简安装工具</div>
+        <div class="desc">Cloudflare Workers 引导站 + API 代理分发</div>
+      </div>
+      <div class="project-card">
+        <div class="num">③</div>
+        <div class="name">亚马逊运营助手</div>
+        <div class="desc">6 个专项 SKILL：调研/关键词/文案/专利/选品</div>
+      </div>
+      <div class="project-card">
+        <div class="num">④</div>
+        <div class="name">微信公众号后台</div>
+        <div class="desc">Node.js + Express，消息处理与 AI 集成</div>
+      </div>
+      <div class="project-card">
+        <div class="num">⑤</div>
+        <div class="name">全站备份系统</div>
+        <div class="desc">多语言多模块自动化备份</div>
+      </div>
+      <div class="project-card">
+        <div class="num">⑥</div>
+        <div class="name">更多工具</div>
+        <div class="desc">MemoTrace · 多开谷歌 · Obsidian AI</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 4: BROWSER AUTOMATION
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">③</span>
+      <h2 class="slide-title">浏览器自动化控制</h2>
+    </div>
+    <div class="two-col" style="flex:1; align-content:center;">
+      <div class="col reveal">
+        <ul class="neon-list">
+          <li>工具：<span class="pill pill-cyan">TT Bridge</span> + <span class="pill pill-magenta">Chrome 扩展</span></li>
+          <li>让 AI 接管浏览器，打开网页、滚动、点击、抓取数据</li>
+          <li>支持 Twitter/X、Facebook、Meta Business Suite</li>
+          <li>流程：<span style="color:var(--accent-cyan);">tt-bridge serve</span> → 扩展连接 → AI 指令操控</li>
+          <li>小白也能做数据采集，一键导出 CSV</li>
+        </ul>
+      </div>
+      <div class="col reveal" style="display:flex; flex-direction:column; justify-content:center;">
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:clamp(0.8rem,1.2vw,1.2rem);font-family:monospace;font-size:var(--small-size);">
+          <div style="color:var(--accent-cyan);margin-bottom:0.5rem;">$ tt-bridge --help</div>
+          <div style="color:var(--text-secondary);line-height:1.6;">
+            tt-bridge open &lt;url&gt;<br>
+            tt-bridge eval &lt;js&gt;<br>
+            tt-bridge click &lt;selector&gt;<br>
+            tt-bridge screenshot
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 5: CLAUDE INSTALL TOOL
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">④</span>
+      <h2 class="slide-title">Claude 极简安装工具</h2>
+    </div>
+    <div class="two-col" style="flex:1; align-content:center;">
+      <div class="col reveal">
+        <ul class="neon-list">
+          <li>目标：帮朋友<span style="color:var(--accent-cyan);">免 VPN</span> 安装 Claude Code</li>
+          <li>Cloudflare Workers 架设安装引导站</li>
+          <li>集成软件下载、一键配置脚本</li>
+          <li>DeepSeek V4 API 代理 + 计费限流</li>
+          <li>自己的 API Key 拆成 100 份给朋友用</li>
+        </ul>
+        <div class="tech-tags">
+          <span class="tech-tag">Cloudflare Workers</span>
+          <span class="tech-tag">JavaScript</span>
+          <span class="tech-tag">API Proxy</span>
+          <span class="tech-tag">Rate Limiting</span>
+        </div>
+      </div>
+      <div class="col reveal" style="display:flex; flex-direction:column; justify-content:center;">
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:clamp(0.8rem,1.2vw,1.2rem);text-align:center;">
+          <div style="font-size:clamp(1.2rem,2.5vw,2rem);margin-bottom:0.3rem;">🌐</div>
+          <div style="font-size:var(--body-size);color:var(--text-primary);font-weight:700;">引导站 → 一键安装</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);">小白朋友也能独立完成</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 6: AMAZON SKILLS
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">⑤</span>
+      <h2 class="slide-title">亚马逊运营助手</h2>
+    </div>
+    <div class="project-grid reveal" style="grid-template-columns:repeat(3,1fr);">
+      <div class="project-card">
+        <div class="name">📊 市场调研</div>
+        <div class="desc">从 1688 链接到 Amazon 竞品深度分析</div>
+      </div>
+      <div class="project-card">
+        <div class="name">🔑 关键词研究</div>
+        <div class="desc">自动挖掘高价值关键词</div>
+      </div>
+      <div class="project-card">
+        <div class="name">✍️ Listing 优化</div>
+        <div class="desc">AI 生成高质量商品描述</div>
+      </div>
+      <div class="project-card">
+        <div class="name">🛡️ 专利风险评估</div>
+        <div class="desc">上架前排查侵权风险</div>
+      </div>
+      <div class="project-card">
+        <div class="name">🎯 选品分析</div>
+        <div class="desc">数据驱动选品决策</div>
+      </div>
+      <div class="project-card">
+        <div class="name">📋 产品短名单</div>
+        <div class="desc">智能筛选优质产品</div>
+      </div>
+    </div>
+    <p class="reveal" style="font-size:var(--body-size);color:var(--text-secondary);text-align:center;margin-top:clamp(0.5rem,1vw,1rem);">
+      不需要懂代码，跟 AI 描述需求就能用
+    </p>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 7: WECHAT OFFICIAL ACCOUNT
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">⑥</span>
+      <h2 class="slide-title">微信公众号后台</h2>
+    </div>
+    <div class="two-col" style="flex:1; align-content:center;">
+      <div class="col reveal">
+        <ul class="neon-list">
+          <li>基于 Node.js + Express 搭建</li>
+          <li>公众号消息处理、自动回复</li>
+          <li>集成 AI 能力到公众号对话</li>
+          <li>微信 API 对接、XML 消息处理</li>
+          <li>配合素材制作进行内容运营</li>
+        </ul>
+        <div class="tech-tags">
+          <span class="tech-tag">Node.js</span>
+          <span class="tech-tag">Express</span>
+          <span class="tech-tag">微信 API</span>
+          <span class="tech-tag">XML</span>
+        </div>
+      </div>
+      <div class="col reveal" style="display:flex; flex-direction:column; justify-content:center;">
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:clamp(0.8rem,1.2vw,1.2rem);text-align:center;">
+          <div style="font-size:clamp(1.5rem,3vw,2.5rem);margin-bottom:0.3rem;">💬</div>
+          <div style="font-size:var(--body-size);color:var(--text-primary);font-weight:700;">AI + 公众号</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);">智能对话，自动运营</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 8: MORE PROJECTS
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">⑦</span>
+      <h2 class="slide-title">更多项目一览</h2>
+    </div>
+    <div class="project-grid reveal" style="grid-template-columns:repeat(2,1fr);">
+      <div class="project-card">
+        <div class="name">💾 全站备份系统</div>
+        <div class="desc">多语言多模块（Java/Node/Nginx/数据库），自动化备份流程</div>
+      </div>
+      <div class="project-card">
+        <div class="name">📝 MemoTrace</div>
+        <div class="desc">AI 对话追踪分析工具，记录和分析 LLM 对话</div>
+      </div>
+      <div class="project-card">
+        <div class="name">🌐 多开谷歌</div>
+        <div class="desc">多个 Chrome 独立账号环境，分开管理运营身份</div>
+      </div>
+      <div class="project-card">
+        <div class="name">🧠 Obsidian AI</div>
+        <div class="desc">知识管理与 AI 结合，构建个人知识体系</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 9: PITFALLS
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">⑧</span>
+      <h2 class="slide-title">踩坑合集</h2>
+    </div>
+    <div class="pitfall-grid reveal">
+      <div class="pitfall-card">
+        <div class="pitfall-title">⚠ CLI 被误删</div>
+        <div class="pitfall-desc">Claude Code CLI 被误删了</div>
+        <div class="pitfall-fix">npm install -g @anthropic-ai/claude-code</div>
+      </div>
+      <div class="pitfall-card">
+        <div class="pitfall-title">⚠ Chrome 崩溃</div>
+        <div class="pitfall-desc">"并行配置不正确" 无法启动</div>
+        <div class="pitfall-fix">重装 VC++ 运行库</div>
+      </div>
+      <div class="pitfall-card">
+        <div class="pitfall-title">⚠ 更新中断</div>
+        <div class="pitfall-desc">Chrome 更新后打不开</div>
+        <div class="pitfall-fix">用 new_chrome.exe 替换旧 exe</div>
+      </div>
+      <div class="pitfall-card">
+        <div class="pitfall-title">⚠ 扩展连不上</div>
+        <div class="pitfall-desc">桥接扩展无法连接守护进程</div>
+        <div class="pitfall-fix">手动点击 "Start Serving"</div>
+      </div>
+      <div class="pitfall-card">
+        <div class="pitfall-title">⚠ GitHub 连不上</div>
+        <div class="pitfall-desc">网络无法访问 GitHub</div>
+        <div class="pitfall-fix">配置 HTTP_PROXY 代理</div>
+      </div>
+    </div>
+    <p class="reveal" style="font-size:var(--body-size);color:var(--accent-cyan);text-align:center;margin-top:clamp(0.5rem,1vw,1rem);font-weight:500;">
+      AI 时代，问题不怕多，AI 能帮你一个个解决
+    </p>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 10: INSIGHTS
+     =========================================== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="slide-header reveal">
+      <span class="slide-number">⑨</span>
+      <h2 class="slide-title">核心感悟</h2>
+    </div>
+    <div class="insight-grid reveal" style="flex:1; align-content:center;">
+      <div class="insight-card" style="transition-delay:0.1s;">
+        <div class="icon">🚀</div>
+        <div class="text">不会代码也能做<br>"全栈"项目</div>
+      </div>
+      <div class="insight-card" style="transition-delay:0.2s;">
+        <div class="icon">💡</div>
+        <div class="text">关键是学会描述需求<br>不是学会写代码</div>
+      </div>
+      <div class="insight-card" style="transition-delay:0.3s;">
+        <div class="icon">🎯</div>
+        <div class="text">AI 降低了"试错成本"<br>大胆尝试就行</div>
+      </div>
+      <div class="insight-card" style="transition-delay:0.4s;">
+        <div class="icon">🤝</div>
+        <div class="text">一个人 + AI<br>≈ 一个小团队</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 11: CLOSING
+     =========================================== -->
+<section class="slide closing-slide">
+  <div class="slide-content">
+    <div class="cyber-tag reveal" style="border-color:rgba(255,0,170,0.25);color:var(--accent-magenta);">✦ THANK YOU</div>
+    <div class="glow-line reveal" style="background:linear-gradient(90deg,transparent,var(--accent-magenta),var(--accent-cyan),transparent);"></div>
+    <h1 class="neon-title reveal">你也可以试试！</h1>
+    <p class="reveal" style="font-size:clamp(0.9rem,1.5vw,1.2rem);color:var(--text-secondary);max-width:500px;line-height:1.6;">
+      用 Claude Code 从一个小项目开始<br>
+      迈出你的 AI 效率革命第一步
+    </p>
+    <p class="reveal" style="font-size:var(--small-size);color:rgba(255,255,255,0.3);margin-top:clamp(1.5rem,3vw,3rem);">
+      感谢聆听 🙌
+    </p>
+  </div>
+</section>
+
+<!-- ===========================================
+     SLIDE PRESENTATION CONTROLLER
+     =========================================== -->
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.currentSlide = 0;
+    this.progressBar = document.querySelector('.progress-bar');
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+    this.setupWheelNav();
+    this.setupTouchNav();
+    this.setupProgressBar();
+    this.setupNavDots();
+    // Trigger first slide
+    setTimeout(() => { this.slides[0]?.classList.add('visible'); }, 100);
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          this.currentSlide = Array.from(this.slides).indexOf(entry.target);
+          this.updateProgress();
+          this.updateDots();
+        }
+      });
+    }, { threshold: 0.3 });
+    this.slides.forEach(s => observer.observe(s));
+  }
+
+  setupKeyboardNav() {
+    document.addEventListener('keydown', (e) => {
+      if (e.target.getAttribute('contenteditable')) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault(); this.goNext();
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault(); this.goPrev();
+      }
+      if (e.key === 'Home') { e.preventDefault(); this.goTo(0); }
+      if (e.key === 'End') { e.preventDefault(); this.goTo(this.slides.length - 1); }
+    });
+  }
+
+  setupWheelNav() {
+    let ticking = false;
+    document.addEventListener('wheel', (e) => {
+      if (ticking) return;
+      ticking = true;
+      setTimeout(() => { ticking = false; }, 600);
+      if (e.deltaY > 0) this.goNext();
+      else this.goPrev();
+    }, { passive: true });
+  }
+
+  setupTouchNav() {
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartY - e.changedTouches[0].screenY;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) this.goNext();
+        else this.goPrev();
+      }
+    }, { passive: true });
+  }
+
+  setupProgressBar() { this.updateProgress(); }
+
+  updateProgress() {
+    const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+    if (this.progressBar) this.progressBar.style.width = pct + '%';
+  }
+
+  setupNavDots() {
+    let container = document.querySelector('.nav-dots');
+    if (container) container.remove();
+    container = document.createElement('nav');
+    container.className = 'nav-dots';
+    container.style.cssText = 'position:fixed;right:clamp(12px,2vw,24px);top:50%;transform:translateY(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+    this.slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.style.cssText = 'width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:transparent;cursor:pointer;transition:all 0.3s ease;padding:0;pointer-events:auto;';
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => this.goTo(i));
+      container.appendChild(dot);
+    });
+    document.body.appendChild(container);
+    this.navDots = container.querySelectorAll('button');
+    this.updateDots();
+  }
+
+  updateDots() {
+    if (!this.navDots) return;
+    this.navDots.forEach((dot, i) => {
+      if (i === this.currentSlide) {
+        dot.style.background = '#00ffcc';
+        dot.style.borderColor = '#00ffcc';
+        dot.style.boxShadow = '0 0 8px rgba(0,255,204,0.5)';
+      } else {
+        dot.style.background = 'transparent';
+        dot.style.borderColor = 'rgba(255,255,255,0.2)';
+        dot.style.boxShadow = 'none';
+      }
+    });
+  }
+
+  goNext() {
+    const next = Math.min(this.currentSlide + 1, this.slides.length - 1);
+    if (next !== this.currentSlide) {
+      this.slides[next].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  goPrev() {
+    const prev = Math.max(this.currentSlide - 1, 0);
+    if (prev !== this.currentSlide) {
+      this.slides[prev].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  goTo(index) {
+    if (index >= 0 && index < this.slides.length) {
+      this.slides[index].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}
+
+new SlidePresentation();
+
+/* ===========================================
+   INLINE EDITING
+   =========================================== */
+const editor = {
+  isActive: false,
+
+  toggleEditMode() {
+    this.isActive = !this.isActive;
+    const toggle = document.getElementById('editToggle');
+    const banner = document.getElementById('editBanner');
+    const textEls = document.querySelectorAll('.slide h1, .slide h2, .slide p, .slide li, .slide .name, .slide .desc, .slide .pitfall-title, .slide .pitfall-desc, .slide .pitfall-fix, .slide .text, .neon-title, .slide-title');
+
+    if (this.isActive) {
+      document.body.classList.add('edit-active');
+      toggle.classList.add('active');
+      toggle.textContent = '✔ 完成编辑';
+      banner.classList.add('active');
+      textEls.forEach(el => el.setAttribute('contenteditable', 'true'));
+    } else {
+      document.body.classList.remove('edit-active');
+      toggle.classList.remove('active');
+      toggle.textContent = '✏️ 编辑';
+      banner.classList.remove('active');
+      textEls.forEach(el => el.removeAttribute('contenteditable'));
+    }
+  },
+
+  exportFile() {
+    // Strip edit state before saving
+    const editableEls = Array.from(document.querySelectorAll('[contenteditable]'));
+    editableEls.forEach(el => el.removeAttribute('contenteditable'));
+    document.body.classList.remove('edit-active');
+    const editToggle = document.getElementById('editToggle');
+    const editBanner = document.querySelector('.edit-banner');
+    editToggle?.classList.remove('active', 'show');
+    editBanner?.classList.remove('active', 'show');
+
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+    // Restore edit state
+    document.body.classList.add('edit-active');
+    editableEls.forEach(el => el.setAttribute('contenteditable', 'true'));
+    editToggle?.classList.add('active');
+    editBanner?.classList.add('active');
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'presentation.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+};
+
+// Hotzone hover with delay
+const hotzone = document.querySelector('.edit-hotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+
+hotzone.addEventListener('mouseenter', () => {
+  clearTimeout(hideTimeout);
+  if (!editor.isActive) editToggle.classList.add('show');
+});
+hotzone.addEventListener('mouseleave', () => {
+  hideTimeout = setTimeout(() => {
+    if (!editor.isActive) editToggle.classList.remove('show');
+  }, 400);
+});
+editToggle.addEventListener('mouseenter', () => { clearTimeout(hideTimeout); });
+editToggle.addEventListener('mouseleave', () => {
+  hideTimeout = setTimeout(() => {
+    if (!editor.isActive) editToggle.classList.remove('show');
+  }, 400);
+});
+
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.getElementById('editToggle').addEventListener('click', () => editor.toggleEditMode());
+
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+    editor.toggleEditMode();
+  }
+  if ((e.key === 's' || e.key === 'S') && (e.ctrlKey || e.metaKey) && editor.isActive) {
+    e.preventDefault();
+    editor.exportFile();
+  }
+});
+</script>
+</body>
+</html>
